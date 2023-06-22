@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.select import Select
 
 import games
+import save_restore
 import datetime
 
 driver = webdriver.Chrome()
@@ -69,7 +70,8 @@ def get_contests(driver, year):
             this_game_dict['link'] = game_col_link
             this_game_dict['date'] = game_sortable_date
             this_game_dict['name'] = game_col_text
-            # this_game_dict['id']   = short_name
+            this_game_dict['id']   = short_name
+
             games_dict[short_name] = this_game_dict
         else:
             assert()
@@ -85,23 +87,36 @@ if __name__ == "__main__":
 
 
     games_dict_by_year = {}
+    games_results_by_year = {}
 
     for year_text in year_texts:
+        
+        load_results = save_restore.import_from_json(year_text)
+        if load_results is not None:
+            print("Got games for year: " + year_text + " from file!")
+            this_years_contests = load_results
+        else:
+            # Navigate to webpage
+            url = "https://rspba.org/results/bands/contests/" + year_text + "/"
+            driver.get(url)
 
-        # Navigate to webpage
-        url = "https://rspba.org/results/bands/contests/" + year_text + "/"
-        driver.get(url)
+            print("Get games for year: " + year_text)
 
-        print("Get games for year: " + year_text)
+            this_years_contests = get_contests(driver, year_text)
 
-        this_years_contests = get_contests(driver, year_text)
+            save_restore.export_to_json(this_years_contests, year_text)
+            
+
         games_dict_by_year[year_text] = this_years_contests
         # Pretty print
         for key, value in this_years_contests.items():
             print(f"{key}: {value}")
+            
+        print("----------------------------------------")
         # Call the process_links() function to process the links
-        games.process_all_games_links(this_years_contests)
+        games_results_for_year = games.process_all_games_links(this_years_contests)
 
+        games_results_by_year[year_text] = games_results_for_year
         # REMOVE ME
         break;
 
