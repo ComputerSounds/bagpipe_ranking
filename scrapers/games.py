@@ -3,27 +3,36 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from time import sleep
 
+from rspba import driver
+
 import csv
+import os
+
 
 # Define a function to process the links
 def process_all_games_links(games_dict):
 
     all_games_data = []
-    for game_text, game_link in games_dict.items():
-        print(f"Process {game_text}: {game_link}")
-        this_game_data = process_game(game_link)
-        write_games_to_file(this_game_data, game_text)
+    for game_id, game in games_dict.items():
+        game_link   = game['link']
+        # game_id     = game['id']
+        print(f"Process {game_id}: {game_link}")
+        game_results = process_game(game_link)
+        write_games_to_file(game_results, game_id)
 
-def write_games_to_file(this_game_data, game_name):
+def write_games_to_file(game_results, game_name):
+    subdir = "rspba_data"
+    if not os.path.exists(subdir):
+        os.mkdir(subdir)
     # output as CSV file
-    with open(f'{game_name}.csv', 'w', newline='') as file:
+    # TODO - JSON instead and spit out the whole dictionary
+    with open(subdir + "/" + game_name + ".csv", 'w', newline='') as file:
         writer = csv.writer(file)
-        for value in this_game_data:
+        for value in game_results:
             writer.writerow(value)
 
 def process_game(game_link):
     # Open the link
-    driver = webdriver.Chrome()
     driver.get(game_link)
 
     # Find dropdown options and iterate over them
@@ -67,7 +76,6 @@ def process_game(game_link):
                 row_data = [header_cell.text for header_cell in header_cells]
                 table_data.append(row_data) if row_data else None
     
-    driver.quit()
     return table_data
 if __name__ == "__main__":
     
