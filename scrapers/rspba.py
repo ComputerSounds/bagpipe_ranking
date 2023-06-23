@@ -90,7 +90,7 @@ if __name__ == "__main__":
     games_results_by_year = {}
 
     for year_text in year_texts:
-        
+
         load_results = save_restore.import_from_json(year_text)
         if load_results is not None:
             print("Got games for year: " + year_text + " from file!")
@@ -105,20 +105,22 @@ if __name__ == "__main__":
             this_years_contests = get_contests(driver, year_text)
 
             save_restore.export_to_json(this_years_contests, year_text)
-            
+
 
         games_dict_by_year[year_text] = this_years_contests
         # Pretty print
         for key, value in this_years_contests.items():
             print(f"{key}: {value}")
-            
+
         print("----------------------------------------")
         # Call the process_links() function to process the links
         games_results_for_year = games.process_all_games_links(this_years_contests)
 
         games_results_by_year[year_text] = games_results_for_year
         # REMOVE ME
-        break;
+        if int(year_text) > 2011:
+            break;
 
+    save_restore.export_to_json(games_results_by_year, 'test_dump')
     # Close the browser window
     driver.quit()

@@ -26,24 +26,24 @@ def process_all_games_links(games_dict):
 
         if load_results is not None:
             print("Get "+game_id+" from file!")
-            
+
             game_results = load_results['results']
             games_dict[game_id]['results'] = game_results
-            
+
         else:
 
             game_results = process_game(game_link)
-            
+
             if game_results is None:
                 # TODO not sure what else to try here....
                 continue;
-            
+
             games_dict[game_id]['results'] = game_results
-            
+
             save_restore.write_games_table_to_csv(game_results, game_id)
 
             save_restore.export_to_json(games_dict[game_id], game_id)
-            
+
     return games_dict
 
 
@@ -60,9 +60,9 @@ def process_game(game_link):
         return None
 
     options = select_grade.find_elements(By.TAG_NAME, 'option')
-    
+
     results = {}
-    
+
     for grade_option in options:
 
         if grade_option.text.strip() == "Select Grade":
@@ -88,18 +88,18 @@ def process_game(game_link):
 
 
         table_data, placing_by_band = get_table_data(results_table_by_grade)
-        
+
         res_dict = {}
         res_dict['table'] = table_data
         res_dict['placings'] = placing_by_band
-        
+
         results[grade_text] = res_dict
-        
-  
+
+
     return results
 
 def get_table_data(table):
-    
+
     table_rows = table.find_elements(By.TAG_NAME, 'tr')
 
     table_data = []
@@ -117,8 +117,8 @@ def get_table_data(table):
             for cell in data_cells:
                 if len(cell.text):
                     row_data.append(cell.text)
-            
-        elif header_cells:            
+
+        elif header_cells:
 
             for cell in header_cells:
                 if len(cell.text):
@@ -130,11 +130,11 @@ def get_table_data(table):
     return table_data, placing_by_band
 
 if __name__ == "__main__":
-    
+
     game_data = process_game("https://rspba.org/results/bands/contests/2022-pitlochry")
     game_name = "test"
     save_restore.write_games_table_to_csv(game_data, game_name)
-    
+
     game_dict = {}
     game_dict['id'] = game_name
     game_dict['results'] = game_data
