@@ -130,6 +130,7 @@ def get_table_data(table):
     return table_data, placing_by_band
 
 if __name__ == "__main__":
+    # TODO this should be a in a test.
 
     game_data = process_game("https://rspba.org/results/bands/contests/2022-pitlochry")
     game_name = "test"
